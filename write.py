@@ -134,3 +134,5 @@ class Write:
 
             for j in sorted_missed[i]:
                 print(self.__words[j] + '\t' + self.__defns[j])
+
+        input("Press any key to exit.")
