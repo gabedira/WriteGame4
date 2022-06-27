@@ -19,6 +19,7 @@ class Write:
         self.__times_missed = [0] * self.__N
         self.__num_question = 1
 
+    
     def __play_epoch(self):
         m0 = min(len(self.__state0), self.__num_per_epoch)
         m1 = min(self.__num_per_epoch - m0, len(self.__state1))
@@ -39,6 +40,7 @@ class Write:
 
         self.__print_end_of_epoch(epoch_words)
 
+    
     def __print_end_of_epoch(self, epoch_words):
         os.system('cls' if os.name == 'nt' else 'clear')
         print('=' * 40)
@@ -65,6 +67,7 @@ class Write:
         print()
         input("Type any key to go on.")
 
+    
     def __play_round(self, i):
         os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -101,6 +104,7 @@ class Write:
         print()
         self.__total_rounds += 1
 
+    
     def play_game(self):
         while len(self.__state2) != self.__N:
             ret = self.__play_epoch()
@@ -108,6 +112,7 @@ class Write:
                 return -1
         self.__end_text()
 
+    
     def __end_text(self):
         os.system('cls' if os.name == 'nt' else 'clear')
         print("Accuracy: " + str(self.__correct_responses * 100 // self.__total_rounds) + "%")
@@ -132,7 +137,12 @@ class Write:
             else:
                 print("\nNever missed:")
 
-            for j in sorted_missed[i]:
-                print(self.__words[j] + '\t' + self.__defns[j])
+            for k in sorted_missed[i]:
+                n = 40
+                chunks = [self.__defns[k][j:j + n] for j in range(0, len(self.__defns[k]), n)]
+                print(self.__words[k].ljust(13) + ' | ' +
+                      chunks[0])
+                for j in range(len(chunks) - 1):
+                    print( " " * 14 + "| " + chunks[j + 1])
 
         input("Press any key to exit.")

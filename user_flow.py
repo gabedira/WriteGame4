@@ -85,7 +85,8 @@ class UserFlow:
 
     def __list_sets(self):
         os.system('cls' if os.name == 'nt' else 'clear')
-        ret = self.__dbm.list_sets(self.__user_id)
+        ret = self.__dbm.list_sets(0)
+        ret.extend(self.__dbm.list_sets(self.__user_id))
         if len(ret) == 0:
             print("No sets found.")
             return 0
@@ -117,7 +118,9 @@ class UserFlow:
         if n == 0:
             return
 
-        ret = self.__dbm.list_sets(self.__user_id)
+        ret = self.__dbm.list_sets(0)
+        ret.extend(self.__dbm.list_sets(self.__user_id))
+        
         set_ids = []
         for row in ret:
             set_ids.append(int(row[0]))
@@ -137,7 +140,8 @@ class UserFlow:
 
     def __play_game_option(self):
         self.__list_sets()
-        ret = self.__dbm.list_sets(self.__user_id)
+        ret = self.__dbm.list_sets(0)
+        ret.extend(self.__dbm.list_sets(self.__user_id))
         set_ids = []
         for row in ret:
             set_ids.append(int(row[0]))
