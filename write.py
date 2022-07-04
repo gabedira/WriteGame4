@@ -3,9 +3,10 @@ from colorama import Fore
 from colorama import Style
 import os
 
-
+# TODOS:
+# 2: add ability to star words <- easy
 class Write:
-    def __init__(self, words, defns):
+    def __init__(self, words, defns, rounds):
         self.__num_per_epoch = 7
         self.__N = len(words)
         self.__words = words
@@ -18,6 +19,13 @@ class Write:
         self.__correct_responses = 0
         self.__times_missed = [0] * self.__N
         self.__num_question = 1
+        self.__num_rounds = rounds
+        
+        maxlen = 0
+        for word in words:
+            maxlen = max(len(word), maxlen)
+        self.__maxlen = maxlen
+
 
     
     def __play_epoch(self):
@@ -76,7 +84,16 @@ class Write:
         self.__num_question += 1
         if player_word == 'q':
             return -1
+            
         if player_word != self.__words[i]:
+            for j in range(len(self.__words)):
+                if self.__words[j] == player_word:
+                    print(self.__words[j]+": \""+self.__defns[j]+"\"")
+                    print()
+                    break
+
+
+            
             player_response = input("Correct answer: " + self.__words[i] +
                                     ': ').strip()
             if player_response != 's':
@@ -96,10 +113,10 @@ class Write:
 
         if player_word == self.__words[i]:
             self.__prog[i] += 1
-            if self.__prog[i] == 1:
-                self.__state1.append(i)
-            else:
+            if self.__prog[i] == self.__num_rounds:
                 self.__state2.append(i)
+            else:
+                self.__state1.append(i)
             self.__correct_responses += 1
         print()
         self.__total_rounds += 1
@@ -140,9 +157,9 @@ class Write:
             for k in sorted_missed[i]:
                 n = 40
                 chunks = [self.__defns[k][j:j + n] for j in range(0, len(self.__defns[k]), n)]
-                print(self.__words[k].ljust(13) + ' | ' +
+                print(self.__words[k].ljust(self.__maxlen) + ' | ' +
                       chunks[0])
                 for j in range(len(chunks) - 1):
-                    print( " " * 14 + "| " + chunks[j + 1])
+                    print( " " * (self.__maxlen + 1) + "| " + chunks[j + 1])
 
         input("Press any key to exit.")

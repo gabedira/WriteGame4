@@ -165,8 +165,13 @@ class UserFlow:
 
         self.__list_words(words, defns)
         print()
+        rounds = input("Enter the number of rounds you want to play.")
+        if not rounds.isdigit():
+            rounds = 2
+        else:
+            rounds = int(rounds)
         print("Press any key to start playing with these " + str(len(words)) +
               " words.")
         input("During the game, press 'q' to quit at any time.")
-        write = Write(words, defns)
+        write = Write(words, defns, rounds)
         write.play_game()

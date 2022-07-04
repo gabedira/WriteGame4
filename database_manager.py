@@ -4,7 +4,7 @@ import csv
 import os
 
 connection = sqlite3.connect("my_database")
-
+# TODO: Figure out foreign key constraint
 
 #connection.execute("DROP TABLE IF EXISTS starred;")
 #connection.execute("DROP TABLE IF EXISTS words;")
