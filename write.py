@@ -20,6 +20,7 @@ class Write:
         self.__times_missed = [0] * self.__N
         self.__num_question = 1
         self.__num_rounds = rounds
+        self.__word_dict = dict(zip(words, defns))
         
         maxlen = 0
         for word in words:
@@ -59,7 +60,7 @@ class Write:
 
         for i in epoch_words:
             print(f"{Fore.GREEN}●{Style.RESET_ALL}" * self.__prog[i], end="")
-            print(f"{Fore.GREEN}○{Style.RESET_ALL}" * (2 - self.__prog[i]),
+            print(f"{Fore.GREEN}○{Style.RESET_ALL}" * (self.__num_rounds - self.__prog[i]),
                   end="")
             print(f"{Fore.GREEN}  {Style.RESET_ALL}", end="")
             if self.__prog[i] == 0:
@@ -86,12 +87,10 @@ class Write:
             return -1
             
         if player_word != self.__words[i]:
-            for j in range(len(self.__words)):
-                if self.__words[j] == player_word:
-                    print(self.__words[j]+": \""+self.__defns[j]+"\"")
-                    print()
-                    break
-
+            
+            if player_word in self.__word_dict:
+                print(player_word+": \""+self.__word_dict[player_word]+"\"")
+                print()
 
             
             player_response = input("Correct answer: " + self.__words[i] +
