@@ -4,7 +4,12 @@ from colorama import Style
 import os
 
 # TODOS:
-# 2: add ability to star words <- easy
+# 1: add ability to star words <- easy
+# 2: better formatting of words and defns after epoch
+# 3: make defn lines end at complete words (new file)
+# 4: enhance importer to add sets of arbitrary size, split into sets of a given size
+# 5: pass db manager to write so we can check against all words in the db
+
 class Write:
     def __init__(self, words, defns, rounds):
         self.__num_per_epoch = 7
@@ -41,11 +46,19 @@ class Write:
         epoch_words.extend(self.__state1[0:m1])
         self.__state1 = self.__state1[m1:]
         random.shuffle(epoch_words)
-
-        for i in epoch_words:
-            ret = self.__play_round(i)
+        
+        for i in range(len(epoch_words)):
+            ret = self.__play_round(epoch_words[i])
             if ret == -1:
                 return -1
+            if ret == -2:
+                self.__num_question -= 1
+                for j in range(i, len(epoch_words)):
+                    if self.__prog[epoch_words[j]] == 0:
+                        self.__state0.append(epoch_words[j])
+                    else:
+                        self.__state1.append(epoch_words[j])
+                return -2
 
         self.__print_end_of_epoch(epoch_words)
 
@@ -75,6 +88,7 @@ class Write:
         print('=' * 40)
         print()
         input("Type any key to go on.")
+        
 
     
     def __play_round(self, i):
@@ -85,6 +99,9 @@ class Write:
         self.__num_question += 1
         if player_word == 'q':
             return -1
+
+        if player_word == "-q":
+            return -2
             
         if player_word != self.__words[i]:
             
@@ -126,6 +143,9 @@ class Write:
             ret = self.__play_epoch()
             if ret == -1:
                 return -1
+            if ret == -2:
+                return -2
+                
         self.__end_text()
 
     

@@ -41,21 +41,45 @@ class UserFlow:
                 self.__list_sets_option()
             elif option == '3':
                 self.__play_game_option()
+            elif option == '4':
+                self.__load_game_option()
             else:
                 print("Invalid option.")
 
+    def __load_game_option(self):
+        pause_points = self.__dbm.list_pause_points(self.__user_id)
+        if len(pause_points) == 0:
+            print("No pause points. Press any button to return to menu")
+            input()
+            return
+        
+        for i in range(len(pause_points)):
+            print(str(i+1) + ". " + pause_points[i][0])
+
+        index = input("Select the pause point to load.")
+        print()
+        if not index.isdigit() or index >= len(pause_points):
+            return
+        filename = pause_points[int(index)-1][1]
+
+        write = self.__dbm.load_pause_point(filename)
+        write.play_game()
+        
+
+            
     def __list_options(self):
         while True:
-            valid_options = ['1', '2', '3', 'q']
+            valid_options = ['1', '2', '3', '4', 'q']
             os.system('cls' if os.name == 'nt' else 'clear')
             print("Hello " + self.__user_name)
             print()
-            print("========================")
-            print("| 1. Add a set         |")
-            print("| 2. List your sets    |")
-            print("| 3. Play game         |")
-            print("| Or enter 'q' to quit |")
-            print("========================")
+            print("=========================")
+            print("| 1. Add a set          |")
+            print("| 2. List your sets     |")
+            print("| 3. Play new  game     |")
+            print("| 4. Load previous game |")
+            print("| Or enter 'q' to quit  |")
+            print("=========================")
             print()
             option = input()
             if option not in valid_options:
@@ -174,4 +198,6 @@ class UserFlow:
               " words.")
         input("During the game, press 'q' to quit at any time.")
         write = Write(words, defns, rounds)
-        write.play_game()
+        ret = write.play_game()
+        if ret == -2:
+            self.__dbm.pickle(self.__user_id, write)

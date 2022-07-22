@@ -1,7 +1,8 @@
 import sqlite3
-from datetime import date
+from datetime import datetime
 import csv
 import os
+import pickle
 
 connection = sqlite3.connect("my_database")
 # TODO: Figure out foreign key constraint
@@ -22,7 +23,9 @@ connection.execute("CREATE TABLE IF NOT EXISTS words(word_id INT PRIMARY KEY, se
 connection.execute("CREATE TABLE IF NOT EXISTS starred( user_id INT, set_id INT, word_id INT, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE, FOREIGN KEY (set_id) REFERENCES sets(set_id) ON DELETE CASCADE, FOREIGN KEY (word_id) REFERENCES words(word_id) ON DELETE CASCADE);") 
 '''
 
-
+'''
+connection.execute("CREATE TABLE IF NOT EXISTS paused(user_id INT, name STRING, played DATE, filename STRING, FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE);")
+'''
 
 
 
@@ -40,7 +43,7 @@ class DataBaseManager:
     def __init__(self, db_name):
         
         self.__connection = sqlite3.connect(db_name)
-        self.__today = date.today()
+        self.__today = datetime.now()
 
     
     def get_max_user_id(self):
@@ -206,6 +209,51 @@ class DataBaseManager:
         #print(ret)
         words, defns = zip(*ret)
         return words, defns
+
+    def pickle(self, user_id, write):
+        try:
+            played = self.__today.strftime("%m/%d/%y")
+            filename = "pausepoint_"+self.__today.strftime("%m_%d_%y_%H_%M_%S")
+            statement = "INSERT INTO paused(user_id, name, played, filename) VALUES(" + str(user_id) + ", '" + filename + "', '" + played + "', '" + filename+"');"
+            self.__connection.execute(statement)
+            self.__connection.commit()
+
+            with open(filename, 'wb') as f:
+                pickle.dump(write,f)
+                f.close()
+        
+        except Exception as e:
+            print(e)
+            return -1
+
+    def list_pause_points(self, user_id):
+        try:
+            statement = "SELECT played, filename FROM paused WHERE user_id = " + str(user_id)
+            
+            ret = self.__connection.execute(statement)
+            return ret.fetchall()
+            
+        
+        except Exception as e:
+            print(e)
+            return -1
+
+        
+    def load_pause_point(self, filename):
+        try:
+            with open(filename, 'rb') as f:
+                write = pickle.load(f)
+                f.close()
+                os.remove(filename)
+                statement = "DELETE FROM paused WHERE filename = '"+filename+"'"
+                self.__connection.execute(statement)
+                self.__connection.commit()
+                return write
+                
+        
+        except Exception as e:
+            print(e)
+            return -1
     
     '''   
 
