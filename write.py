@@ -7,8 +7,7 @@ import os
 # 1: add ability to star words <- easy
 # 2: better formatting of words and defns after epoch
 # 3: make defn lines end at complete words (new file)
-# 4: enhance importer to add sets of arbitrary size, split into sets of a given size
-# 5: pass db manager to write so we can check against all words in the db
+# 4: pass db manager to write so we can check against all words in the db
 
 class Write:
     def __init__(self, words, defns, rounds):

@@ -58,7 +58,7 @@ class UserFlow:
 
         index = input("Select the pause point to load.")
         print()
-        if not index.isdigit() or index >= len(pause_points):
+        if not index.isdigit() or int(index) > len(pause_points):
             return
         filename = pause_points[int(index)-1][1]
 
@@ -70,7 +70,7 @@ class UserFlow:
     def __list_options(self):
         while True:
             valid_options = ['1', '2', '3', '4', 'q']
-            os.system('cls' if os.name == 'nt' else 'clear')
+            #os.system('cls' if os.name == 'nt' else 'clear')
             print("Hello " + self.__user_name)
             print()
             print("=========================")
@@ -100,12 +100,16 @@ class UserFlow:
 
         set_name = input("Enter desired set name: ")
         delete = input("Delete this csv [y/n]: ")
+        set_size = input("Enter desired set size: ")
+        while not set_size.isdigit() or int(set_size) < 1:
+            set_size = input("Enter valid set size: ")
+        delimiter = input("Enter file delimiter: ")
         delete = (delete == 'y')
 
         self.__dbm.read_from_csv(filename,
                                  set_name,
                                  self.__user_id,
-                                 delete_file=delete)
+                                 delete_file=delete, set_size=int(set_size), delimiter=delimiter)
 
     def __list_sets(self):
         os.system('cls' if os.name == 'nt' else 'clear')

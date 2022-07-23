@@ -162,25 +162,48 @@ class DataBaseManager:
             return -1
         
 
-    def read_from_csv(self, file_name, set_name, user_id, date = None, delete_file= False):
-        set_id =  self.insert_set(set_name, user_id, created = date)
-            
-        if set_id == -1:
-            return -1
-
-        word_id = self.get_max_word_id() + 1
-        num_words = 0
+    def read_from_csv(self, file_name, set_name, user_id, date = None, delete_file= False, set_size=None, delimiter=","):
+        
+        words = []
+        defns = []
         
         with open(file_name, newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            reader = csv.reader(csvfile, delimiter=delimiter, quotechar='"')
             for row in reader:
-                word = row[0].strip()
-                defn = row[1].strip()
-                verif = self.insert_word(word, defn, word_id + num_words, set_id)
-                if verif == -1:
-                    print("Error inserting " + word)
-                num_words += 1
+                words.append(row[0].strip())
+                defns.append(row[1].strip())
 
+        num_words = len(words)
+
+        if set_size == None or set_size > num_words:
+            set_size = num_words
+
+        num_sets = num_words // set_size
+        inserted_words = 0
+        word_id = self.get_max_word_id() + 1
+        
+        for i in range(1, num_sets + 1):
+            actual_name = set_name
+            if num_sets != 1:
+                actual_name += "_"+str(i)
+            set_id =  self.insert_set(actual_name, user_id, created = date)    
+            if set_id == -1:
+                return -1
+
+            if i < num_sets:
+                for j in range(set_size):
+                    verif = self.insert_word(words[inserted_words], defns[inserted_words], word_id + inserted_words, set_id)
+                    if verif == -1:
+                        print("Error inserting " + words[inserted_words])
+                    inserted_words += 1
+            else:
+                for j in range(num_words % set_size + set_size):
+                    verif = self.insert_word(words[inserted_words], defns[inserted_words], word_id + inserted_words, set_id)
+                    if verif == -1:
+                        print("Error inserting " + words[inserted_words])
+                    inserted_words += 1
+        
+        
             statement = "SELECT COUNT(*) FROM words WHERE set_id="+str(set_id)
             num_successful = self.__connection.execute(statement).fetchall()[0][0]
             
@@ -191,11 +214,12 @@ class DataBaseManager:
             os.remove(file_name)
 
         self.__connection.commit()
+
+
             
-    
     def delete_set(self, set_id):
-        statement1 = "DELETE FROM sets WHERE set_id = " + set_id
-        statement2 = "DELETE FROM words WHERE set_id = " + set_id
+        statement1 = "DELETE FROM sets WHERE set_id = " + str(set_id)
+        statement2 = "DELETE FROM words WHERE set_id = " + str(set_id)
 
         self.__connection.execute(statement1)
         self.__connection.execute(statement2)
